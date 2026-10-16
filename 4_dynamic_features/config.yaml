@@ -1,0 +1,11 @@
+runtime_seconds: 20
+sample_interval_seconds: 2
+monkey_events: 150
+monkey_throttle_ms: 100
+install_timeout_seconds: 120
+command_timeout_seconds: 30
+adaptive_stop: false
+minimum_runtime_seconds: 8
+idle_seconds_before_stop: 5
+keep_raw: true
+

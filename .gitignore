@@ -1,0 +1,23 @@
+# API keys - never commit
+api_key.txt
+api_keys.txt
+api_key_gemini.txt
+_quota_*.json
+_cau_hinh_model.json
+# data and results
+*.apk
+*.zip
+*.db
+*.sqlite
+*.xlsx
+*.jsonl
+apk_ml_dataset*.csv
+feature_vocabulary.csv
+dynamic_features.csv
+phan_hoi_json/
+phan_hoi_gemini/
+raw/
+# python
+__pycache__/
+*.pyc
+.venv/
