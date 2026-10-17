@@ -10,7 +10,7 @@ The repository follows the five-step construction process described in the paper
 4. documentation and release,
 5. dataset evaluation.
 
-It contains the code for steps 1 to 3, which produce the dataset files. The machine learning code used for the evaluation in step 5 is not included. The dataset itself (feature matrix, vocabulary, labels and raw feature records) is not stored here; it is available from the authors on request.
+It contains the code for steps 1 to 3, which produce the dataset files, and a converter that exports the feature matrix to the formats used by common machine learning tools. The machine learning code used for the evaluation in step 5 is not included. The dataset itself (feature matrix, vocabulary, labels and raw feature records) is not stored here; it is available from the authors on request.
 
 Every tool identifies a sample by the SHA-256 hash of its APK file. All intermediate results (labels, raw feature records, vectors) are keyed by this hash, so the steps can be run independently, re-run without reprocessing samples that are already done, and extended with new samples later.
 
@@ -43,6 +43,9 @@ AndroidMalSet2026/
 │   ├── features.py                 turns the samples into the 30 dynamic features
 │   ├── config.py, config.yaml      run settings (observation time, Monkey events...)
 │   └── test_features.py            unit test for the feature summary
+├── 5_export_formats/
+│   ├── chuyen_dinh_dang.py         export the feature matrix to ARFF, LibSVM and NPZ
+│   └── vi_du_su_dung.ipynb         example: load the NPZ files with scikit-learn and Keras
 ├── requirements.txt
 └── README.md
 ```
@@ -172,6 +175,37 @@ Options: `--apk-dir` APK folder, `--output` output folder, `--workers` number of
 Outputs: `dynamic_features.csv` (SHA-256, run information and the 30 features), `processed.jsonl` and `failed.jsonl` (checkpoints) and `raw/` (per-sample sampling data and logcat).
 
 Use emulators without real accounts or personal data, without shared folders, on an isolated NAT network.
+
+## Export to other formats
+
+`apk_ml_dataset.csv` can be used as it is with pandas or scikit-learn. `5_export_formats/chuyen_dinh_dang.py` converts it, together with a label file, into formats read directly by other tools:
+
+| Format | Files | Tools |
+|---|---|---|
+| `arff` | `AndroidMalSet2026.arff` (sparse ARFF, class attribute last) | Weka (Explorer, Experimenter, command line) |
+| `libsvm` | `AndroidMalSet2026.libsvm` (1-based indices, class index as label) | scikit-learn `load_svmlight_file`, XGBoost, LightGBM, LIBSVM, Weka `LibSVMLoader` |
+| `npz` | `X.npz` (SciPy CSR, float32), `y.npy`, `classes.txt` | scikit-learn, Keras/TensorFlow, PyTorch in Anaconda, Jupyter Notebook or Google Colab |
+
+Every run also writes `feature_names.txt` (column order) and `sample_ids.csv` (`file_name`, `source`, `sha256`, `label` in row order).
+
+```
+python chuyen_dinh_dang.py --csv apk_ml_dataset.csv --output export --nhan labels.xlsx --cot-nhan Nhan_bai_bao --dinh-dang arff libsvm npz
+```
+
+| Option | Meaning |
+|---|---|
+| `--csv` | feature matrix written by `trich_xuat_tinh.py` |
+| `--output` | output folder |
+| `--dinh-dang` | one or more of `arff`, `libsvm`, `npz` |
+| `--nhan` | label file (CSV or XLSX) joined on SHA-256 |
+| `--cot-sha`, `--cot-nhan` | SHA-256 and label column names in the label file |
+| `--nhi-phan` | binary task: every label other than Benign becomes Malware |
+| `--chi-ma-doc` | keep malware samples only (four-category task) |
+| `--giu-khong-nhan` | keep samples without a label (dropped by default) |
+| `--khoi` | rows read per chunk (default 2,000) |
+| `--gioi-han` | read only the first N rows, for a quick test |
+
+The CSV is read in chunks, so ARFF and LibSVM files are written without loading the whole matrix into memory; the NPZ export keeps the sparse matrix in memory. `vi_du_su_dung.ipynb` shows how to load the NPZ files and train a Random Forest (scikit-learn) and a small neural network (Keras) on mini-batches. With 20,032 attributes, give Weka more memory, for example `java -Xmx8g -jar weka.jar`.
 
 ## Linking the files
 
