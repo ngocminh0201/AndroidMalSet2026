@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "AndroidMalSet2026: tools for building a category-labelled Android malware dataset"
+type: software
+license: MIT
+repository-code: "https://github.com/ngocminh0201/AndroidMalSet2026"
+authors:
+  - family-names: Tong
+    given-names: Anh Tuan
+    affiliation: Tran Quoc Hoan Academy
+  - family-names: Le
+    given-names: Ngoc Minh
+    affiliation: Graduate University of Science and Technology, Vietnam Academy of Science and Technology
+    orcid: "https://orcid.org/0009-0003-0030-3183"
+  - family-names: Vu
+    given-names: Xuan Truong
+    affiliation: Tran Quoc Hoan Academy
+    orcid: "https://orcid.org/0009-0002-3917-1416"
+  - family-names: Nguyen
+    given-names: Minh Tu
+    affiliation: Tuyen Quang Provincial Police
+    orcid: "https://orcid.org/0009-0008-3082-6862"
+version: 1.0.0

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Thu gom APK tu cac kho GitHub da tai san ve may (thu muc GitHubMinh).
+Thu gom APK tu cac kho GitHub da tai san ve may (dang thu muc hoac file .zip).
 
 Khac voi thu_gom_github_apk.py: script kia tu clone kho tu GitHub, script nay
 doc thang tren dia, khong tai lai gi ca. Chap nhan ca hai dang:
@@ -31,13 +31,13 @@ Neu may co san 7-Zip thi script tu goi 7z.exe.
 
 Cu phap:
     # xem truoc, khong giai nen gi het
-    python thu_gom_tu_zip.py --thu-muc-nguon D:\\DuAnCapToc\\Thu_thap_APK\\GitHubMinh --liet-ke
+    python thu_gom_tu_zip.py --thu-muc-nguon <thu_muc_chua_cac_kho> --liet-ke
 
     # chay that
     python thu_gom_tu_zip.py ^
-        --thu-muc-nguon D:\\DuAnCapToc\\Thu_thap_APK\\GitHubMinh ^
-        --dich D:\\APK_GitHub ^
-        --manifest D:\\DuAnCapToc\\Thu_thap_APK\\Manifest_thu_thap_APK.xlsx ^
+        --thu-muc-nguon <thu_muc_chua_cac_kho> ^
+        --dich <thu_muc_ket_qua> ^
+        --manifest <bang_ke_mau>.xlsx ^
         --nam-toi-thieu 2020
 
 Ket qua ghi NOI THEM vao <dich>\\Ket_qua_thu_gom.xlsx (ba sheet: Mau_thu_duoc,
@@ -64,7 +64,7 @@ MAT_KHAU = [None, b"infected", b"infected!", b"malware", b"virus"]
 # Moc nam do cong cu build ghi cung vao entry cua APK chu khong phai nam that:
 # zipalign va mot so ban aapt dat 1980-01-01 hoac 1981-01-01, vai chuoi build
 # khac dat 2008. Gap cac moc nay nghia la APK khong con dau vet thoi gian, khong
-# co nghia la mau cu, nen mac dinh GIU lai va de VirusTotal chot nam o Buoc 2.
+# co nghia la mau cu, nen mac dinh GIU lai va de VirusTotal chot nam o buoc gan nhan.
 # Toan bo 11 mau goldoson bi loai nham vi moc 1981 trong lan chay dau 30/8/2026.
 MOC_KHONG_THAT = {0, 1980, 1981, 2008}
 DUOI_NEN = (".zip", ".7z", ".rar", ".gz", ".tar", ".tgz", ".xz", ".bz2")
@@ -292,7 +292,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--thu-muc-nguon", required=True,
                    help="thu muc chua cac kho da giai nen va/hoac file zip")
-    p.add_argument("--dich", default="", help="thu muc luu ket qua, vi du D:\\APK_GitHub")
+    p.add_argument("--dich", default="", help="thu muc luu ket qua, vi du <thu_muc_ket_qua>")
     p.add_argument("--manifest", default="", help="Manifest_thu_thap_APK.xlsx de khu trung lap")
     p.add_argument("--nam-toi-thieu", type=int, default=0,
                    help="chi giu APK co moc thoi gian tu nam nay tro di; 0 = giu tat ca")
@@ -334,7 +334,7 @@ def main():
         return 0
 
     if not ts.dich:
-        print("Thieu --dich. Vi du: --dich D:\\APK_GitHub")
+        print("Thieu --dich. Vi du: --dich <thu_muc_ket_qua>")
         return 1
 
     thu_muc_apk = os.path.join(ts.dich, "apk")

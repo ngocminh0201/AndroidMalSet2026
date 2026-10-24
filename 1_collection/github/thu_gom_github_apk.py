@@ -11,9 +11,9 @@ Can: git, python 3, va hai goi  pip install openpyxl pyzipper
 pyzipper dung de doc cac file nen WinZip AES ma module zipfile chuan khong mo duoc.
 
 Cu phap:
-    python thu_gom_github_apk.py --danh-sach nguon_github.csv --dich D:\\APK_GitHub
-    python thu_gom_github_apk.py --danh-sach nguon_github.csv --dich D:\\APK_GitHub ^
-        --manifest D:\\DuAnCapToc\\Thu_thap_APK\\Manifest_thu_thap_APK.xlsx --nam-toi-thieu 2020
+    python thu_gom_github_apk.py --danh-sach github_sources.csv --dich <thu_muc_ket_qua>
+    python thu_gom_github_apk.py --danh-sach github_sources.csv --dich <thu_muc_ket_qua> ^
+        --manifest <bang_ke_mau>.xlsx --nam-toi-thieu 2020
 
 Ket qua:
     <dich>/apk/<sha256>.apk        cac mau hop le, da khu trung lap

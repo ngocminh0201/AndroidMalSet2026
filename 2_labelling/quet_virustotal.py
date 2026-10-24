@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """quet_virustotal.py - tra ket qua VirusTotal cho tung file APK trong mot thu muc.
 
-Buoc 2 (gan nhan) cua quy trinh 5 buoc xay dung AndroidMalSet2026: moi mau duoc
+Buoc 3 (gan nhan) cua quy trinh 7 buoc xay dung AndroidMalSet2026: moi mau duoc
 gui len VirusTotal, lay ve so cong cu diet virus danh dau la doc, roi tu do ket
 luan mau co phai ma doc hay khong. Quy uoc mac dinh cua bo du lieu: CHI CAN
 1 engine bao doc la ket luan ma doc, khong engine nao bao thi la lanh tinh.
@@ -41,10 +41,10 @@ khi doi quy uoc nguong, hoac khi muon dung lai Excel sau su co. Cot Nhan_Gemini
 va cot Lan_chay cua tung dong deu duoc giu nguyen.
 
 Vi du chay:
-    python quet_virustotal.py --thu-muc "D:\\APK_GitHub\\apk"
-    python quet_virustotal.py --thu-muc "D:\\APK_GitHub\\apk" --gioi-han 20
+    python quet_virustotal.py --thu-muc "<thu_muc_apk>"
+    python quet_virustotal.py --thu-muc "<thu_muc_apk>" --gioi-han 20
     python quet_virustotal.py --kiem-tra-key
-    python quet_virustotal.py --thu-muc "D:\\APK_GitHub\\apk" --noi-tiep
+    python quet_virustotal.py --thu-muc "<thu_muc_apk>" --noi-tiep
     python quet_virustotal.py --tinh-lai
 """
 

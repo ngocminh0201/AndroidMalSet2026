@@ -1,20 +1,29 @@
 # AndroidMalSet2026
 
-Source code of the tools used to build **AndroidMalSet2026**, a dataset of 120,123 labelled Android applications (Benign and four malware categories: Riskware, Adware, SMS malware, Banking malware) described by 20,032 static features and 30 dynamic features.
+Source code of the tools used to build **AndroidMalSet2026**, a dataset of 120,123 labelled Android applications (Benign and four malware categories: Riskware, Adware, SMS malware, Banking malware) described by 20,032 static features.
 
-The repository follows the five-step construction process described in the paper:
+- Dataset (feature matrix, vocabulary, labels, dynamic attributes of 2,636 samples): https://doi.org/10.5281/zenodo.23551354
+- Licence of the code: MIT (see `LICENSE`). The data files on Zenodo are released under CC BY 4.0.
 
-1. sample collection,
-2. labelling,
-3. feature extraction,
-4. documentation and release,
-5. dataset evaluation.
+## Construction process and code
 
-It contains the code for steps 1 to 3, which produce the dataset files, and a converter that exports the feature matrix to the formats used by common machine learning tools. The machine learning code used for the evaluation in step 5 is not included. The dataset itself (feature matrix, vocabulary, labels and raw feature records) is not stored here; it is available from the authors on request.
+The dataset is built through the seven-step process described in the article. The table shows where each step is implemented.
+
+| Step | What it does | Code |
+|---|---|---|
+| 1. Sample collection | Download APKs from AndroZoo and collect samples from 16 GitHub repositories; check integrity and record every sample in an inventory keyed by SHA-256 | `1_collection/` |
+| 2. Time-based sample selection | Keep samples from 2020 onwards, newest first: by the date added to AndroZoo (`--tu-nam` in `chuan_bi_danh_muc.py`, newest-first download in `tai_androzoo.py`) and by the timestamp inside the APK for GitHub samples (`--nam-toi-thieu`) | `1_collection/` |
+| 3. Labelling | VirusTotal lookup by SHA-256, then category assignment with Gemini | `2_labelling/` |
+| 4. Feature extraction | Static features from the ZIP structure, the manifest and the DEX bytecode | `3_static_features/` |
+| 5. Machine learning validation | Eight classical algorithms on the detection and four-category tasks | not included |
+| 6. Dataset evaluation | Comparison with published datasets and assessment against data quality criteria | reported in the article |
+| 7. Documentation release | Public label file, checksums and export of the feature matrix to other formats | `5_export_formats/` |
+
+`4_dynamic_features/` holds the dynamic feature extraction tool. It was run on 2,636 samples and its output (`dynamic_features.csv`) is released on Zenodo, but the dynamic attributes are not part of the feature matrix; the article explains why.
 
 Every tool identifies a sample by the SHA-256 hash of its APK file. All intermediate results (labels, raw feature records, vectors) are keyed by this hash, so the steps can be run independently, re-run without reprocessing samples that are already done, and extended with new samples later.
 
-> Comments, log messages and command-line options inside the scripts are written in Vietnamese without diacritics. The options are listed below with their meaning in English.
+> Comments, log messages and command-line options inside the scripts are written in Vietnamese, mostly without diacritics. The options are listed below with their meaning in English.
 
 ## Repository layout
 
@@ -22,30 +31,35 @@ Every tool identifies a sample by the SHA-256 hash of its APK file. All intermed
 AndroidMalSet2026/
 ├── 1_collection/
 │   ├── androzoo/
-│   │   ├── chuan_bi_danh_muc.py    build a filtered candidate index from the AndroZoo list
-│   │   ├── tai_androzoo.py         download APKs from AndroZoo and verify SHA-256
+│   │   ├── chuan_bi_danh_muc.py    build a filtered candidate index from the AndroZoo list (steps 1-2)
+│   │   ├── tai_androzoo.py         download APKs from AndroZoo, newest first, and verify SHA-256
 │   │   └── doi_soat_androzoo.py    reconcile the APK folder, the index and the result sheet
 │   └── github/
 │       ├── thu_gom_github_apk.py   clone GitHub sample repositories and extract APKs
 │       ├── thu_gom_tu_zip.py       extract APKs from repositories already downloaded as ZIP
 │       ├── ghi_ket_qua.py          shared helper that writes the collection sheet
-│       └── github_sources.csv      the 16 GitHub repositories used in the paper
+│       └── github_sources.csv      the 16 GitHub repositories used in the article
 ├── 2_labelling/
 │   ├── quet_virustotal.py          look up each APK on VirusTotal by SHA-256 (stage 1)
 │   └── gan_nhan_gemini.py          assign the final label with Gemini (stage 2)
 ├── 3_static_features/
 │   └── trich_xuat_tinh.py          static feature extraction and vectorisation
-├── 4_dynamic_features/
-│   ├── main.py                     entry point, one worker per Android emulator
+├── 4_dynamic_features/             dynamic extraction tool (output not part of the feature matrix)
+│   ├── main.py                     command-line entry point, one worker per Android emulator
+│   ├── gui.py, chay_gui.bat        graphical interface (Tkinter) for the same run
 │   ├── runner.py                   install, launch, exercise and observe one APK
-│   ├── adb.py                      thin wrapper around ADB
+│   ├── adb.py                      ADB wrapper; finds the Android SDK and starts emulators
 │   ├── collectors.py               CPU, memory, process, network and logcat sampling
 │   ├── features.py                 turns the samples into the 30 dynamic features
 │   ├── config.py, config.yaml      run settings (observation time, Monkey events...)
-│   └── test_features.py            unit test for the feature summary
+│   ├── test_features.py            unit test for the feature summary
+│   └── README.md                   usage notes (Vietnamese)
 ├── 5_export_formats/
+│   ├── tao_file_nhan.py            build labels.csv and SHA256SUMS.txt for the Zenodo deposit
 │   ├── chuyen_dinh_dang.py         export the feature matrix to ARFF, LibSVM and NPZ
 │   └── vi_du_su_dung.ipynb         example: load the NPZ files with scikit-learn and Keras
+├── .zenodo.json, CITATION.cff      metadata for archiving and citing this code
+├── LICENSE
 ├── requirements.txt
 └── README.md
 ```
@@ -54,9 +68,9 @@ AndroidMalSet2026/
 
 - Python 3.10 or newer (the dynamic tool was run on Windows; the other tools run on Windows or Linux).
 - `pip install -r requirements.txt`
-- Step 1: an AndroZoo API key (https://androzoo.uni.lu). `git` is needed for `thu_gom_github_apk.py`.
-- Step 2: one or more VirusTotal API keys and a Google Gemini API key.
-- Step 4 (dynamic features): Android SDK platform tools (`adb`) and one or more Android emulators that have finished booting.
+- Steps 1-2: an AndroZoo API key (https://androzoo.uni.lu). `git` is needed for `thu_gom_github_apk.py`.
+- Step 3: one or more VirusTotal API keys and a Google Gemini API key.
+- Dynamic tool: Android Studio with the Android SDK (platform tools, build tools and emulator) and one or more Android Virtual Devices. Tkinter, used by the graphical interface, ships with the standard Python installer on Windows.
 
 API keys are read from plain text files placed next to the scripts, one key per line. These files are listed in `.gitignore` and must never be committed:
 
@@ -68,7 +82,7 @@ API keys are read from plain text files placed next to the scripts, one key per 
 
 Malware samples are live malicious code. Run the collection and the dynamic analysis only inside an isolated research machine or virtual machine, never on a personal phone.
 
-## Step 1. Sample collection
+## Steps 1-2. Sample collection and time-based selection
 
 ### AndroZoo
 
@@ -86,7 +100,7 @@ python chuan_bi_danh_muc.py --danh-sach latest_with-added-date.csv --tu-nam 2020
 | `--kich-thuoc` | maximum APK size in MB |
 | `--chi-thong-ke` | only print statistics, do not write the index |
 
-`tai_androzoo.py` downloads APKs listed in the index. Files are named by SHA-256; each download is checked against the HTTP status and against the SHA-256 in the index, and a mismatching file is deleted and queued again. The download state is stored in the SQLite index, so an interrupted run resumes where it stopped. Results are appended to `Ket_qua_AndroZoo.xlsx`.
+`tai_androzoo.py` downloads APKs listed in the index, newest first (`--ngau-nhien` picks them at random instead). Files are named by SHA-256; each download is checked against the HTTP status and against the SHA-256 in the index, and a mismatching file is deleted and queued again. The download state is stored in the SQLite index, so an interrupted run resumes where it stopped. Results are appended to `Ket_qua_AndroZoo.xlsx`.
 
 ```
 python tai_androzoo.py --so-luong 5000 --luong 4
@@ -105,7 +119,7 @@ python thu_gom_github_apk.py --danh-sach github_sources.csv --dich <output_folde
 python thu_gom_tu_zip.py --thu-muc-nguon <folder_with_zip_files> --dich <output_folder> --nam-toi-thieu 2020
 ```
 
-## Step 2. Labelling
+## Step 3. Labelling
 
 ### Stage 1: VirusTotal lookup
 
@@ -129,7 +143,7 @@ python gan_nhan_gemini.py --thu-muc-json phan_hoi_json --model gemini-3.6-flash 
 
 Main options: `--model` Gemini model name, `--lo` samples per call, `--so-engine` engine results per sample in the prompt (default 25), `--uu-tien` category priority order, `--thu` print the first prompt without calling the API, `--tinh-lai` rebuild the Excel file from saved answers.
 
-## Step 3. Static features
+## Step 4. Feature extraction
 
 `trich_xuat_tinh.py` uses androguard to extract static features from the ZIP structure, `AndroidManifest.xml` and the DEX bytecode, in three stages:
 
@@ -162,21 +176,42 @@ Outputs:
 | `apk_ml_dataset.csv` | feature matrix: `file_name`, `source`, `sha256`, 32 numeric attributes, 20,000 vocabulary columns named `<group>::<value>` |
 | `feature_vocabulary.csv` | vocabulary with the number and share of samples containing each feature |
 
-## Step 4. Dynamic features
+## Dynamic feature extraction tool
 
 The tool in `4_dynamic_features/` uses only the standard Android Emulator and ADB, without root, so several emulators can run in parallel (one worker per emulator). For each APK it clears logcat, installs the app and grants its declared permissions, launches the main activity, and runs Monkey (150 random UI events, 100 ms apart). While Monkey runs, it samples the app every 2 seconds for 20 seconds: CPU, memory (PSS, RSS, Java heap, native heap), processes and threads, sockets and bytes sent and received by the app's UID. It then collects logcat, stops and uninstalls the app. The samples are summarised into 30 features in seven groups (execution status, CPU, memory, processes, network, system log, component events).
+
+The tool was run on 2,636 APK files with four emulators. The resulting `dynamic_features.csv` is released on Zenodo; it is not merged into the static feature matrix because of the long processing time, the high failure rate and the small number of informative attributes reported in the article.
 
 ```
 python main.py --apk-dir <apk_folder> --output <output_folder> --runtime 20 --workers 4 --resume
 ```
 
-Options: `--apk-dir` APK folder, `--output` output folder, `--workers` number of emulators, `--serials` explicit emulator serials, `--runtime` observation time in seconds, `--resume` skip APKs already processed, `--test-apk` run a single APK. Other settings are in `config.yaml`.
+| Option | Meaning |
+|---|---|
+| `--apk-dir`, `--output` | APK folder and output folder |
+| `--workers` | number of emulators (one worker each) |
+| `--serials` | explicit emulator serials, comma-separated; by default all online emulators |
+| `--runtime` | observation time in seconds |
+| `--resume` | skip APKs (by file name) that already ran successfully |
+| `--test-apk` | run a single APK |
+| `--staging-dir` | local folder where each APK is copied once before installation, so a slow external drive is read only once; the copy is deleted afterwards |
+| `--no-staging` | install directly from `--apk-dir` |
 
-Outputs: `dynamic_features.csv` (SHA-256, run information and the 30 features), `processed.jsonl` and `failed.jsonl` (checkpoints) and `raw/` (per-sample sampling data and logcat).
+Other settings are in `config.yaml`. The same run can be started from a window with `python gui.py` or by double-clicking `chay_gui.bat`. The interface finds the Android SDK installed by Android Studio, lists the Android Virtual Devices, starts emulators (optionally without saving their state on exit), edits `config.yaml`, and shows the results with their logcat. If an emulator stops responding during a run, the APK is not recorded as failed: the worker waits for the emulator to come back and runs the APK again.
+
+Outputs: `dynamic_features.csv` (SHA-256, run information and the 30 features), `processed.jsonl` and `failed.jsonl` (append-only checkpoints) and `raw/` (per-sample sampling data and logcat). An APK that was run more than once appears several times in `processed.jsonl`; `dynamic_features.csv` keeps one row per APK, the most recent attempt.
 
 Use emulators without real accounts or personal data, without shared folders, on an isolated NAT network.
 
-## Export to other formats
+## Step 7. Release files
+
+`5_export_formats/tao_file_nhan.py` builds `labels.csv`, the public label file deposited on Zenodo, from the labelling results and the keys of the feature matrix. It writes only fields that may be redistributed (SHA-256, source, binary and category labels, number of flagging engines, total number of engines, label confidence, labelling method and model, first VirusTotal submission date) and checks the class counts against the article. It also writes `SHA256SUMS.txt` for the deposited files.
+
+```
+python tao_file_nhan.py --gan-nhan Ket_qua_GanNhan.xlsx --virustotal Ket_qua_VirusTotal.xlsx --ma-tran apk_ml_dataset.csv --out <release_folder> --them-file feature_vocabulary.csv --them-file dynamic_features.csv
+```
+
+### Export to other formats
 
 `apk_ml_dataset.csv` can be used as it is with pandas or scikit-learn. `5_export_formats/chuyen_dinh_dang.py` converts it, together with a label file, into formats read directly by other tools:
 
@@ -189,7 +224,7 @@ Use emulators without real accounts or personal data, without shared folders, on
 Every run also writes `feature_names.txt` (column order) and `sample_ids.csv` (`file_name`, `source`, `sha256`, `label` in row order).
 
 ```
-python chuyen_dinh_dang.py --csv apk_ml_dataset.csv --output export --nhan labels.xlsx --cot-nhan Nhan_bai_bao --dinh-dang arff libsvm npz
+python chuyen_dinh_dang.py --csv apk_ml_dataset.csv --output export --nhan labels.csv --cot-nhan category_label --dinh-dang arff libsvm npz
 ```
 
 | Option | Meaning |
@@ -213,4 +248,8 @@ All outputs share the SHA-256 key: join the static feature matrix, the dynamic f
 
 ## Data availability
 
-The dataset files are not stored in this repository because of their size (about 4.9 GB for the feature matrix and 84 GB for the raw records) and because malware samples are not redistributed. They are available from the authors on reasonable request. Samples can be downloaded again from AndroZoo by SHA-256.
+The dataset files are deposited on Zenodo: https://doi.org/10.5281/zenodo.23551354. The deposit contains the static feature matrix (`apk_ml_dataset.csv`, about 4.9 GB), the vocabulary (`feature_vocabulary.csv`), the labels (`labels.csv`), the dynamic attributes of 2,636 samples (`dynamic_features.csv`) and the checksums. APK files and raw VirusTotal reports are not redistributed; samples can be downloaded again from AndroZoo by SHA-256. The raw feature database (84 GB) is not deposited; it can be rebuilt from the APK files with `3_static_features/trich_xuat_tinh.py`.
+
+## Citation
+
+If you use the code, please cite it with the metadata in `CITATION.cff`, and cite the dataset with its Zenodo DOI.
