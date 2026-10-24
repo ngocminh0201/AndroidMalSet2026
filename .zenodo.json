@@ -3,7 +3,7 @@
   "upload_type": "software",
   "description": "Source code of the tools used to build AndroidMalSet2026 through a seven-step process: sample collection from AndroZoo and GitHub with time-based sample selection, VirusTotal lookup by SHA-256, category labelling with Gemini, static feature extraction, creation of the public label file and export of the feature matrix to ARFF, LibSVM and NPZ. The repository also contains the dynamic feature extraction tool (Android Emulator and ADB, without root) that was run on 2,636 samples; its output is released with the dataset but is not part of the feature matrix.",
   "creators": [
-    {"name": "Tong, Anh Tuan", "affiliation": "Tran Quoc Hoan Academy"},
+    {"name": "Tong, Anh Tuan", "affiliation": "Tran Quoc Hoan Academy", "orcid": "0000-0001-6321-6106"},
     {"name": "Le, Ngoc Minh", "affiliation": "Graduate University of Science and Technology, Vietnam Academy of Science and Technology", "orcid": "0009-0003-0030-3183"},
     {"name": "Vu, Xuan Truong", "affiliation": "Tran Quoc Hoan Academy", "orcid": "0009-0002-3917-1416"},
     {"name": "Nguyen, Minh Tu", "affiliation": "Tuyen Quang Provincial Police", "orcid": "0009-0008-3082-6862"}
